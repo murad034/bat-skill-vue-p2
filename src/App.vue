@@ -1,41 +1,84 @@
 <script setup>
-// import { ref } from 'vue';
-// import moment from 'moment';
+import { ref } from "vue";
+import moment from "moment";
 
-// const posts = ref([
-//   {
-//     id: 1,
-//     title: 'Post 1',
-//     content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-//     likes: 3,
-//     comments: [],
-//     date: '2024-05-24 11:00:00'
-//   },
-//   {
-//     id: 2,
-//     title: 'Post 2',
-//     content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-//     likes: 3,
-//     comments: [],
-//     date: '2024-05-24 11:00:00'
-//   },
-//   {
-//     id: 3,
-//     title: 'Post 3',
-//     content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-//     likes: 3,
-//     comments: [],
-//     date: '2024-05-24 11:00:00'
-//   }
-// ]);
+const posts = ref([
+  {
+    id: 1,
+    title: "Post 1",
+    content:
+      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+    likes: 0,
+    comments: [],
+    date: "2024-05-24 11:00:00",
+  },
+  {
+    id: 2,
+    title: "Post 2",
+    content:
+      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+    likes: 0,
+    comments: [],
+    date: "2023-05-24 11:00:00",
+  },
+  {
+    id: 3,
+    title: "Post 3",
+    content:
+      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+    likes: 3,
+    comments: [],
+    date: "2022-05-24 11:00:00",
+  },
+]);
+
+const userName = ref("");
+userName.value = "Md Murad Hossain";
+const likeCount = ref(0);
+
+const formData = ref({
+  title: "",
+  content: "",
+});
+
+function increaseLikeCount(index) {
+  posts.value[index].likes++;
+}
+
+function deletePost(index) {
+  posts.value.splice(index, 1);
+}
+
+function postCreate(event) {
+  //event.preventDefault();
+  console.log(formData);
+  posts.value.push({
+    id: posts.value.length + 1,
+    title: formData.value.title,
+    content: formData.value.content,
+    likes: 0,
+    comments: [],
+    //date: new Date(),
+    date: moment().format("YYYY-MM-DD HH:mm:ss"),
+  });
+  formData.value.title = '';
+  formData.value.content = '';
+}
 </script>
 
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
       <a class="navbar-brand" href="#">BAT Blog</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -49,8 +92,14 @@
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              John Doe
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {{ userName }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="#">Profile</a></li>
@@ -62,20 +111,35 @@
     </div>
   </nav>
 
-  <!-- <div class="container mt-4">
+  <div class="container mt-4">
     <div class="row">
       <div class="col-md-8 offset-md-2">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Create a New Post</h5>
-            <form>
+            <form @submit.prevent="postCreate($event)">
+              <div class="mb-3">
+                {{ formData.title }}
+              </div>
               <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" placeholder="Enter the title">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="title"
+                  v-model="formData.title"
+                  placeholder="Enter the title"
+                />
               </div>
               <div class="mb-3">
                 <label for="content" class="form-label">Content</label>
-                <textarea class="form-control" id="content" rows="3" placeholder="Enter the content"></textarea>
+                <textarea
+                  class="form-control"
+                  id="content"
+                  rows="3"
+                  v-model="formData.content"
+                  placeholder="Enter the content"
+                ></textarea>
               </div>
               <button type="submit" class="btn btn-success">Submit</button>
             </form>
@@ -83,7 +147,7 @@
         </div>
       </div>
     </div>
-  </div> -->
+  </div>
 
   <div class="posts mt-4">
     <div class="container">
@@ -92,14 +156,24 @@
       </div>
 
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4" v-for="(post, index) in posts" :key="post.id">
           <div class="card mb-4">
             <div class="card-body">
-              <h5 class="card-title">Post 1</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">5 minutes ago</h6>
-              <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-                content. This content is a little bit longer.</p>
-              <p class="card-text"><small>3 likes, 2 comments</small></p>
+              <h5 class="card-title">{{ post.title }}</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">
+                {{ moment(post.date, "YYYYMMDD").fromNow() }}
+              </h6>
+              <p class="card-text">{{ post.content }}</p>
+              <p class="card-text">
+                <small>
+                  <span v-if="post.likes == 1">{{ post.likes }} like,</span>
+                  <span v-else-if="post.likes > 1"
+                    >{{ post.likes }} likes,</span
+                  >
+                  <span v-else>No like</span>
+                  2 comments
+                </small>
+              </p>
 
               <!-- <div class="comments mb-3">
                 <div class="comments-input d-flex mb-3">
@@ -120,34 +194,18 @@
                 </div>
               </div> -->
 
-              <button class="btn btn-sm btn-primary">Like</button>
-              <button class="btn btn-sm btn-danger float-end"><i class="bi bi-trash"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h5 class="card-title">Post 2</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">5 minutes ago</h6>
-              <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-                content. This content is a little bit longer.</p>
-              <p class="card-text"><small>3 likes, 2 comments</small></p>
-              <button class="btn btn-sm btn-primary">Like</button>
-              <button class="btn btn-sm btn-danger float-end"><i class="bi bi-trash"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h5 class="card-title">Post 3</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">5 minutes ago</h6>
-              <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-                content. This content is a little bit longer.</p>
-              <p class="card-text"><small>3 likes, 2 comments</small></p>
-              <button class="btn btn-sm btn-primary">Like</button>
-              <button class="btn btn-sm btn-danger float-end"><i class="bi bi-trash"></i></button>
+              <button
+                class="btn btn-sm btn-primary"
+                v-on:click="increaseLikeCount(index)"
+              >
+                Like
+              </button>
+              <button
+                class="btn btn-sm btn-danger float-end"
+                @click="deletePost(index)"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
             </div>
           </div>
         </div>
