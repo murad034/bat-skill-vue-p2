@@ -18,6 +18,7 @@ const posts = ref([
       },
     ],
     newComment: "",
+    commentSection: true,
     date: "2024-05-24 11:00:00",
   },
   {
@@ -27,6 +28,7 @@ const posts = ref([
       "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
     likes: 0,
     comments: [],
+    commentSection: false,
     newComment: "",
     date: "2023-05-24 11:00:00",
   },
@@ -37,6 +39,7 @@ const posts = ref([
       "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
     likes: 3,
     comments: [],
+    commentSection: true,
     newComment: "",
     date: "2022-05-24 11:00:00",
   },
@@ -69,6 +72,7 @@ function postCreate(event) {
     likes: 0,
     comments: [],
     newComment: "",
+    commentSection: true,
     //date: new Date(),
     date: moment().format("YYYY-MM-DD HH:mm:ss"),
   });
@@ -91,6 +95,7 @@ function commentCreate(index) {
   });
   //console.log(post.comments);
   post.newComment = "";
+  post.commentSection = true;
 }
 </script>
 
@@ -218,24 +223,26 @@ function commentCreate(index) {
                   </div>
                 </form>
 
-                <div
-                  class="comment mb-3 ms-3"
-                  v-for="(comment, commentIndex) in post.comments"
-                  :key="comment.id"
-                >
-                  <h6 class="card-title small">
-                    {{ comment.user ? comment.user : "" }}
-                    <span
-                      class="text-danger float-end cursor-pointer"
-                      @click="deleteComment(index, commentIndex)"
-                      >X</span
-                    >
-                  </h6>
-                  <p class="card-subtitle mb-1 text-body-secondary small">
-                    {{ moment(comment.date).fromNow() }}
-                  </p>
-                  <p class="card-text small">{{ comment.content }}</p>
-                </div>
+                <template v-if="post.commentSection">
+                  <div
+                    class="comment mb-3 ms-3"
+                    v-for="(comment, commentIndex) in post.comments"
+                    :key="comment.id"
+                  >
+                    <h6 class="card-title small">
+                      {{ comment.user ? comment.user : "" }}
+                      <span
+                        class="text-danger float-end cursor-pointer"
+                        @click="deleteComment(index, commentIndex)"
+                        >X</span
+                      >
+                    </h6>
+                    <p class="card-subtitle mb-1 text-body-secondary small">
+                      {{ moment(comment.date).fromNow() }}
+                    </p>
+                    <p class="card-text small">{{ comment.content }}</p>
+                  </div>
+                </template>
                 <hr class="my-2 very-low-opacity" />
               </div>
 
