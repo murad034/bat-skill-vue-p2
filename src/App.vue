@@ -9,7 +9,15 @@ const posts = ref([
     content:
       "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
     likes: 0,
-    comments: [],
+    comments: [
+      {
+        id: 1,
+        content: "This is a comment.",
+        user: "John Doe",
+        date: "2024-05-24 11:00:00",
+      },
+    ],
+    newComment: "",
     date: "2024-05-24 11:00:00",
   },
   {
@@ -19,6 +27,7 @@ const posts = ref([
       "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
     likes: 0,
     comments: [],
+    newComment: "",
     date: "2023-05-24 11:00:00",
   },
   {
@@ -28,6 +37,7 @@ const posts = ref([
       "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
     likes: 3,
     comments: [],
+    newComment: "",
     date: "2022-05-24 11:00:00",
   },
 ]);
@@ -51,18 +61,36 @@ function deletePost(index) {
 
 function postCreate(event) {
   //event.preventDefault();
-  console.log(formData);
+  //console.log(formData);
   posts.value.push({
     id: posts.value.length + 1,
     title: formData.value.title,
     content: formData.value.content,
     likes: 0,
     comments: [],
+    newComment: "",
     //date: new Date(),
     date: moment().format("YYYY-MM-DD HH:mm:ss"),
   });
-  formData.value.title = '';
-  formData.value.content = '';
+  formData.value.title = "";
+  formData.value.content = "";
+}
+
+function deleteComment(index, commentIndex) {
+  const post = posts.value[index].comments.splice(commentIndex, 1);
+}
+
+function commentCreate(index) {
+  const post = posts.value[index];
+  const len = post.comments.length;
+  post.comments.push({
+    id: len+1,
+    user: "Rafik Islam",
+    content: post.newComment,
+    date: moment().format("YYYY-MM-DD HH:mm:ss"),
+  });
+  //console.log(post.comments);
+  post.newComment = "";
 }
 </script>
 
@@ -161,7 +189,7 @@ function postCreate(event) {
             <div class="card-body">
               <h5 class="card-title">{{ post.title }}</h5>
               <h6 class="card-subtitle mb-2 text-body-secondary">
-                {{ moment(post.date, "YYYYMMDD").fromNow() }}
+                {{ moment(post.date).fromNow() }}
               </h6>
               <p class="card-text">{{ post.content }}</p>
               <p class="card-text">
@@ -171,28 +199,45 @@ function postCreate(event) {
                     >{{ post.likes }} likes,</span
                   >
                   <span v-else>No like</span>
-                  2 comments
+                  {{ post.comments.length }} comments
                 </small>
               </p>
 
-              <!-- <div class="comments mb-3">
-                <div class="comments-input d-flex mb-3">
-                  <input type="text" class="form-control form-control-sm me-2" placeholder="Write Comment">
-                  <button class="btn btn-sm btn-success"><i class="bi bi-send"></i></button>
-                </div>
+              <div class="comments mb-3">
+                <form :key="post.id" v-on:submit.prevent="commentCreate(index)">
+                  <div class="comments-input d-flex mb-3">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm me-2"
+                      placeholder="Write Comment"
+                      v-model="post.newComment"
+                    />
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="bi bi-send"></i>
+                    </button>
+                  </div>
+                </form>
 
-                <div class="comment mb-3 ms-3">
-                  <h6 class="card-title small">John Doe <span class="text-danger float-end cursor-pointer">X</span></h6>
-                  <p class="card-subtitle mb-1 text-body-secondary small">5 minutes ago</p>
-                  <p class="card-text small">This is a comment.</p>
+                <div
+                  class="comment mb-3 ms-3"
+                  v-for="(comment, commentIndex) in post.comments"
+                  :key="comment.id"
+                >
+                  <h6 class="card-title small">
+                    {{ comment.user ? comment.user : "" }}
+                    <span
+                      class="text-danger float-end cursor-pointer"
+                      @click="deleteComment(index, commentIndex)"
+                      >X</span
+                    >
+                  </h6>
+                  <p class="card-subtitle mb-1 text-body-secondary small">
+                    {{ moment(comment.date).fromNow() }}
+                  </p>
+                  <p class="card-text small">{{ comment.content }}</p>
                 </div>
-                <hr class="my-2 very-low-opacity">
-                <div class="comment mt-3 ms-3">
-                  <h6 class="card-title small">John Doe <span class="text-danger float-end cursor-pointer">X</span></h6>
-                  <p class="card-subtitle mb-1 text-body-secondary small">5 minutes ago</p>
-                  <p class="card-text small">This is a comment.</p>
-                </div>
-              </div> -->
+                <hr class="my-2 very-low-opacity" />
+              </div>
 
               <button
                 class="btn btn-sm btn-primary"
