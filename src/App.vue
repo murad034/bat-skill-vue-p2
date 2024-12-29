@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { watch, computed, ref } from "vue";
 import moment from "moment";
 
 const posts = ref([
@@ -45,8 +45,57 @@ const posts = ref([
   },
 ]);
 
-const userName = ref("");
-userName.value = "Md Murad Hossain";
+// reverse post using computed property
+
+const reversePosts = computed(() => {
+  //console.log("just computed testing");
+  return [...posts.value].reverse();
+});
+
+// function reversePosts() {
+//   console.log("just method testing");
+//   return [...posts.value].reverse();
+// }
+
+watch(
+  () => posts.value.length,
+  (newValue, oldValue) => {
+    // console.log(newValue, oldValue);
+    //console.log("wathcer method");
+    if (newValue > oldValue) {
+      alert("New post has been created successfully");
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => posts.value,
+  (newValue, oldValue) => {
+    //console.log("hell", newValue, oldValue);
+    posts.value.forEach((post) => {
+      if (post.likes > 10 && !post.likeConfirmation) {
+        post.likeConfirmation = true;
+        post.colorAccess = true;
+        alert("Congratulations!! successfully crossed 10 likes");
+      }
+    });
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
+
+// const userName = ref("");
+const firstname = "Rafiqul Isalm";
+const lastname = "Murad";
+
+//userName.value = "Md Murad Hossain";
+
+const userName = computed(() => {
+  return firstname + lastname;
+});
 const likeCount = ref(0);
 
 const formData = ref({
@@ -81,6 +130,7 @@ function postCreate(event) {
 }
 
 function deleteComment(index, commentIndex) {
+  // console.log(index, commentIndex);
   const post = posts.value[index].comments.splice(commentIndex, 1);
 }
 
@@ -88,7 +138,7 @@ function commentCreate(index) {
   const post = posts.value[index];
   const len = post.comments.length;
   post.comments.push({
-    id: len+1,
+    id: len + 1,
     user: "Rafik Islam",
     content: post.newComment,
     date: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -96,6 +146,14 @@ function commentCreate(index) {
   //console.log(post.comments);
   post.newComment = "";
   post.commentSection = true;
+}
+
+function toggleCommentSection(postIndex) {
+  if (posts.value[postIndex].commentSection) {
+    posts.value[postIndex].commentSection = false;
+  } else {
+    posts.value[postIndex].commentSection = true;
+  }
 }
 </script>
 
@@ -185,31 +243,50 @@ function commentCreate(index) {
   <div class="posts mt-4">
     <div class="container">
       <div class="nav nav-tabs mb-4">
-        <h3>Posts</h3>
+        <h3>
+          Posts
+          <span :class="{'text-danger' : posts.length <= 0}">{{ posts.length }}</span>
+        </h3>
       </div>
 
       <div class="row">
-        <div class="col-md-4" v-for="(post, index) in posts" :key="post.id">
+        <div
+          class="col-md-4"
+          v-for="(post, index) in reversePosts"
+          :key="post.id"
+        >
           <div class="card mb-4">
             <div class="card-body">
               <h5 class="card-title">{{ post.title }}</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">
+              <h6 :style="{fontWeight: 'bold', color: 'red !important', 'color-access' : post.colorAccess}" class="card-subtitle mb-2 text-body-secondary">
                 {{ moment(post.date).fromNow() }}
               </h6>
               <p class="card-text">{{ post.content }}</p>
-              <p class="card-text">
-                <small>
-                  <span v-if="post.likes == 1">{{ post.likes }} like,</span>
-                  <span v-else-if="post.likes > 1"
-                    >{{ post.likes }} likes,</span
+              <p :style="{color: post.likes >= 10 ? 'red' : 'black'}" class="card-text">
+                <small :class="{'color-access' : post.colorAccess}">
+                  <span v-if="post.likes == 1">{{ post.likes }} like, </span>
+                  <span  v-else-if="post.likes > 1"
+                    >{{ post.likes }} likes,
+                  </span>
+                  <span v-else>No like </span>
+
+                  <span
+                    @click="
+                      toggleCommentSection(reversePosts.length - (index + 1))
+                    "
                   >
-                  <span v-else>No like</span>
-                  {{ post.comments.length }} comments
+                    {{ post.comments.length }} comments
+                  </span>
                 </small>
               </p>
 
               <div class="comments mb-3">
-                <form :key="post.id" v-on:submit.prevent="commentCreate(index)">
+                <form
+                  :key="post.id"
+                  v-on:submit.prevent="
+                    commentCreate(reversePosts.length - (index + 1))
+                  "
+                >
                   <div class="comments-input d-flex mb-3">
                     <input
                       type="text"
@@ -233,7 +310,12 @@ function commentCreate(index) {
                       {{ comment.user ? comment.user : "" }}
                       <span
                         class="text-danger float-end cursor-pointer"
-                        @click="deleteComment(index, commentIndex)"
+                        @click="
+                          deleteComment(
+                            reversePosts.length - (index + 1),
+                            commentIndex
+                          )
+                        "
                         >X</span
                       >
                     </h6>
@@ -248,13 +330,15 @@ function commentCreate(index) {
 
               <button
                 class="btn btn-sm btn-primary"
-                v-on:click="increaseLikeCount(index)"
+                v-on:click="
+                  increaseLikeCount(reversePosts.length - (index + 1))
+                "
               >
                 Like
               </button>
               <button
                 class="btn btn-sm btn-danger float-end"
-                @click="deletePost(index)"
+                @click="deletePost(reversePosts.length - (index + 1))"
               >
                 <i class="bi bi-trash"></i>
               </button>
@@ -273,5 +357,8 @@ function commentCreate(index) {
 
 .very-low-opacity {
   opacity: 0.1;
+}
+.color-access{
+  color: aqua;
 }
 </style>
