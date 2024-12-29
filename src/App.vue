@@ -1,6 +1,7 @@
 <script setup>
 import { watch, computed, ref } from "vue";
 import moment from "moment";
+import Posts from "./components/Posts.vue";
 
 const posts = ref([
   {
@@ -44,18 +45,6 @@ const posts = ref([
     date: "2022-05-24 11:00:00",
   },
 ]);
-
-// reverse post using computed property
-
-const reversePosts = computed(() => {
-  //console.log("just computed testing");
-  return [...posts.value].reverse();
-});
-
-// function reversePosts() {
-//   console.log("just method testing");
-//   return [...posts.value].reverse();
-// }
 
 watch(
   () => posts.value.length,
@@ -240,114 +229,14 @@ function toggleCommentSection(postIndex) {
     </div>
   </div>
 
-  <div class="posts mt-4">
-    <div class="container">
-      <div class="nav nav-tabs mb-4">
-        <h3>
-          Posts
-          <span :class="{'text-danger' : posts.length <= 0}">{{ posts.length }}</span>
-        </h3>
-      </div>
-
-      <div class="row">
-        <div
-          class="col-md-4"
-          v-for="(post, index) in reversePosts"
-          :key="post.id"
-        >
-          <div class="card mb-4">
-            <div class="card-body">
-              <h5 class="card-title">{{ post.title }}</h5>
-              <h6 :style="{fontWeight: 'bold', color: 'red !important', 'color-access' : post.colorAccess}" class="card-subtitle mb-2 text-body-secondary">
-                {{ moment(post.date).fromNow() }}
-              </h6>
-              <p class="card-text">{{ post.content }}</p>
-              <p :style="{color: post.likes >= 10 ? 'red' : 'black'}" class="card-text">
-                <small :class="{'color-access' : post.colorAccess}">
-                  <span v-if="post.likes == 1">{{ post.likes }} like, </span>
-                  <span  v-else-if="post.likes > 1"
-                    >{{ post.likes }} likes,
-                  </span>
-                  <span v-else>No like </span>
-
-                  <span
-                    @click="
-                      toggleCommentSection(reversePosts.length - (index + 1))
-                    "
-                  >
-                    {{ post.comments.length }} comments
-                  </span>
-                </small>
-              </p>
-
-              <div class="comments mb-3">
-                <form
-                  :key="post.id"
-                  v-on:submit.prevent="
-                    commentCreate(reversePosts.length - (index + 1))
-                  "
-                >
-                  <div class="comments-input d-flex mb-3">
-                    <input
-                      type="text"
-                      class="form-control form-control-sm me-2"
-                      placeholder="Write Comment"
-                      v-model="post.newComment"
-                    />
-                    <button type="submit" class="btn btn-sm btn-success">
-                      <i class="bi bi-send"></i>
-                    </button>
-                  </div>
-                </form>
-
-                <template v-if="post.commentSection">
-                  <div
-                    class="comment mb-3 ms-3"
-                    v-for="(comment, commentIndex) in post.comments"
-                    :key="comment.id"
-                  >
-                    <h6 class="card-title small">
-                      {{ comment.user ? comment.user : "" }}
-                      <span
-                        class="text-danger float-end cursor-pointer"
-                        @click="
-                          deleteComment(
-                            reversePosts.length - (index + 1),
-                            commentIndex
-                          )
-                        "
-                        >X</span
-                      >
-                    </h6>
-                    <p class="card-subtitle mb-1 text-body-secondary small">
-                      {{ moment(comment.date).fromNow() }}
-                    </p>
-                    <p class="card-text small">{{ comment.content }}</p>
-                  </div>
-                </template>
-                <hr class="my-2 very-low-opacity" />
-              </div>
-
-              <button
-                class="btn btn-sm btn-primary"
-                v-on:click="
-                  increaseLikeCount(reversePosts.length - (index + 1))
-                "
-              >
-                Like
-              </button>
-              <button
-                class="btn btn-sm btn-danger float-end"
-                @click="deletePost(reversePosts.length - (index + 1))"
-              >
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <Posts
+    :posts="posts"
+    @increaseLikeCount="increaseLikeCount"
+    @deletePost="deletePost"
+    @deleteComment="deleteComment"
+    @commentCreate="commentCreate"
+    @toggleCommentSection="toggleCommentSection"
+  />
 </template>
 
 <style scoped>
@@ -358,7 +247,7 @@ function toggleCommentSection(postIndex) {
 .very-low-opacity {
   opacity: 0.1;
 }
-.color-access{
+.color-access {
   color: aqua;
 }
 </style>
