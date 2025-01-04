@@ -72,7 +72,7 @@ watch(
   },
   {
     immediate: true,
-    deep: true
+    deep: true,
   }
 );
 
@@ -85,7 +85,6 @@ const lastname = "Murad";
 const userName = computed(() => {
   return firstname + lastname;
 });
-const likeCount = ref(0);
 
 const formData = ref({
   title: "",
@@ -124,6 +123,7 @@ function deleteComment(index, commentIndex) {
 }
 
 function commentCreate(index) {
+  // console.log(index, posts.value);
   const post = posts.value[index];
   const len = post.comments.length;
   post.comments.push({

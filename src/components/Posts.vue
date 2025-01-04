@@ -1,6 +1,7 @@
 <script setup>
-import { defineProps, computed, ref, defineEmits} from "vue";
+import { defineProps, computed, ref, defineEmits } from "vue";
 import moment from "moment";
+import CommentSection from "./CommentSection.vue";
 
 const props = defineProps({
   posts: {
@@ -11,17 +12,26 @@ const props = defineProps({
 
 // const emits = defineEmits(["deletePost", "deleteComment"]);
 const emits = defineEmits({
-    deletePost : null,
-    deleteComment : (index, commentIndex) => {
-        if(typeof index === 'number' && commentIndex === 'number'){
-            return true;
-        }
-        return false;
+  deletePost: null,
+  commentCreate: null,
+  deleteComment: (index, commentIndex) => {
+    if (typeof index === "number" && commentIndex === "number") {
+      return true;
     }
+    return false;
+  },
 });
 
-function deletePost(index){
-    emits("deletePost", index);
+function deletePost(index) {
+  emits("deletePost", index);
+}
+
+function deleteComment(index, commentIndex) {
+  emits("deleteComment", index, commentIndex);
+}
+
+function commentCreate(index) {
+  emits("commentCreate", index);
 }
 
 const posts = ref(props.posts);
@@ -29,7 +39,7 @@ const posts = ref(props.posts);
 // reverse post using computed property
 
 const reversePosts = computed(() => {
-  //console.log("just computed testing");
+  // console.log("just computed testing");
   return [...posts.value].reverse();
 });
 
@@ -95,54 +105,12 @@ const reversePosts = computed(() => {
                 </small>
               </p>
 
-              <div class="comments mb-3">
-                <form
-                  :key="post.id"
-                  v-on:submit.prevent="
-                    $emit('commentCreate', reversePosts.length - (index + 1))
-                  "
-                >
-                  <div class="comments-input d-flex mb-3">
-                    <input
-                      type="text"
-                      class="form-control form-control-sm me-2"
-                      placeholder="Write Comment"
-                      v-model="post.newComment"
-                    />
-                    <button type="submit" class="btn btn-sm btn-success">
-                      <i class="bi bi-send"></i>
-                    </button>
-                  </div>
-                </form>
-
-                <template v-if="post.commentSection">
-                  <div
-                    class="comment mb-3 ms-3"
-                    v-for="(comment, commentIndex) in post.comments"
-                    :key="comment.id"
-                  >
-                    <h6 class="card-title small">
-                      {{ comment.user ? comment.user : "" }}
-                      <span
-                        class="text-danger float-end cursor-pointer"
-                        @click="
-                          emits(
-                            'deleteComment',
-                            reversePosts.length - (index + 1),
-                            commentIndex
-                          )
-                        "
-                        >X</span
-                      >
-                    </h6>
-                    <p class="card-subtitle mb-1 text-body-secondary small">
-                      {{ moment(comment.date).fromNow() }}
-                    </p>
-                    <p class="card-text small">{{ comment.content }}</p>
-                  </div>
-                </template>
-                <hr class="my-2 very-low-opacity" />
-              </div>
+              <CommentSection
+                :post="post"
+                :index="reversePosts.length - (index + 1)"
+                @deleteComment="deleteComment"
+                @commentCreate="commentCreate"
+              />
 
               <button
                 class="btn btn-sm btn-primary"
