@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from "vue";
+import { watch, computed, ref } from "vue";
 import moment from "moment";
+import Posts from "./components/Posts.vue";
 
 const posts = ref([
   {
@@ -45,9 +46,45 @@ const posts = ref([
   },
 ]);
 
-const userName = ref("");
-userName.value = "Md Murad Hossain";
-const likeCount = ref(0);
+watch(
+  () => posts.value.length,
+  (newValue, oldValue) => {
+    // console.log(newValue, oldValue);
+    //console.log("wathcer method");
+    if (newValue > oldValue) {
+      alert("New post has been created successfully");
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => posts.value,
+  (newValue, oldValue) => {
+    //console.log("hell", newValue, oldValue);
+    posts.value.forEach((post) => {
+      if (post.likes > 10 && !post.likeConfirmation) {
+        post.likeConfirmation = true;
+        post.colorAccess = true;
+        alert("Congratulations!! successfully crossed 10 likes");
+      }
+    });
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
+
+// const userName = ref("");
+const firstname = "Rafiqul Isalm";
+const lastname = "Murad";
+
+//userName.value = "Md Murad Hossain";
+
+const userName = computed(() => {
+  return firstname + lastname;
+});
 
 const formData = ref({
   title: "",
@@ -81,14 +118,16 @@ function postCreate(event) {
 }
 
 function deleteComment(index, commentIndex) {
+  // console.log(index, commentIndex);
   const post = posts.value[index].comments.splice(commentIndex, 1);
 }
 
 function commentCreate(index) {
+  // console.log(index, posts.value);
   const post = posts.value[index];
   const len = post.comments.length;
   post.comments.push({
-    id: len+1,
+    id: len + 1,
     user: "Rafik Islam",
     content: post.newComment,
     date: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -96,6 +135,14 @@ function commentCreate(index) {
   //console.log(post.comments);
   post.newComment = "";
   post.commentSection = true;
+}
+
+function toggleCommentSection(postIndex) {
+  if (posts.value[postIndex].commentSection) {
+    posts.value[postIndex].commentSection = false;
+  } else {
+    posts.value[postIndex].commentSection = true;
+  }
 }
 </script>
 
@@ -182,88 +229,14 @@ function commentCreate(index) {
     </div>
   </div>
 
-  <div class="posts mt-4">
-    <div class="container">
-      <div class="nav nav-tabs mb-4">
-        <h3>Posts</h3>
-      </div>
-
-      <div class="row">
-        <div class="col-md-4" v-for="(post, index) in posts" :key="post.id">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h5 class="card-title">{{ post.title }}</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">
-                {{ moment(post.date).fromNow() }}
-              </h6>
-              <p class="card-text">{{ post.content }}</p>
-              <p class="card-text">
-                <small>
-                  <span v-if="post.likes == 1">{{ post.likes }} like,</span>
-                  <span v-else-if="post.likes > 1"
-                    >{{ post.likes }} likes,</span
-                  >
-                  <span v-else>No like</span>
-                  {{ post.comments.length }} comments
-                </small>
-              </p>
-
-              <div class="comments mb-3">
-                <form :key="post.id" v-on:submit.prevent="commentCreate(index)">
-                  <div class="comments-input d-flex mb-3">
-                    <input
-                      type="text"
-                      class="form-control form-control-sm me-2"
-                      placeholder="Write Comment"
-                      v-model="post.newComment"
-                    />
-                    <button type="submit" class="btn btn-sm btn-success">
-                      <i class="bi bi-send"></i>
-                    </button>
-                  </div>
-                </form>
-
-                <template v-if="post.commentSection">
-                  <div
-                    class="comment mb-3 ms-3"
-                    v-for="(comment, commentIndex) in post.comments"
-                    :key="comment.id"
-                  >
-                    <h6 class="card-title small">
-                      {{ comment.user ? comment.user : "" }}
-                      <span
-                        class="text-danger float-end cursor-pointer"
-                        @click="deleteComment(index, commentIndex)"
-                        >X</span
-                      >
-                    </h6>
-                    <p class="card-subtitle mb-1 text-body-secondary small">
-                      {{ moment(comment.date).fromNow() }}
-                    </p>
-                    <p class="card-text small">{{ comment.content }}</p>
-                  </div>
-                </template>
-                <hr class="my-2 very-low-opacity" />
-              </div>
-
-              <button
-                class="btn btn-sm btn-primary"
-                v-on:click="increaseLikeCount(index)"
-              >
-                Like
-              </button>
-              <button
-                class="btn btn-sm btn-danger float-end"
-                @click="deletePost(index)"
-              >
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <Posts
+    :posts="posts"
+    @increaseLikeCount="increaseLikeCount"
+    @deletePost="deletePost"
+    @deleteComment="deleteComment"
+    @commentCreate="commentCreate"
+    @toggleCommentSection="toggleCommentSection"
+  />
 </template>
 
 <style scoped>
@@ -273,5 +246,8 @@ function commentCreate(index) {
 
 .very-low-opacity {
   opacity: 0.1;
+}
+.color-access {
+  color: aqua;
 }
 </style>
