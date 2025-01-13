@@ -1,40 +1,24 @@
 <script setup>
-import { defineProps, computed, ref, defineEmits } from "vue";
+import { defineProps, computed, ref, defineEmits, inject, onUpdated } from "vue";
 import moment from "moment";
 import CommentSection from "./CommentSection.vue";
 
-const props = defineProps({
-  posts: {
-    type: Array,
-    required: true,
-  },
-});
+// const props = defineProps({
+//   posts: {
+//     type: Array,
+//     required: true,
+//   },
+// });
 
-// const emits = defineEmits(["deletePost", "deleteComment"]);
-const emits = defineEmits({
-  deletePost: null,
-  commentCreate: null,
-  deleteComment: (index, commentIndex) => {
-    if (typeof index === "number" && commentIndex === "number") {
-      return true;
-    }
-    return false;
-  },
-});
+// console.log("props post len: " + props.posts.length);
+// const posts = ref(props.posts);
 
-function deletePost(index) {
-  emits("deletePost", index);
-}
+// use provide and inject instead props for removing extra managing hassle
+const posts = inject("posts");
 
-function deleteComment(index, commentIndex) {
-  emits("deleteComment", index, commentIndex);
-}
+// console.log("post len: " + posts.value.length);
 
-function commentCreate(index) {
-  emits("commentCreate", index);
-}
-
-const posts = ref(props.posts);
+//reversePosts.length - (index + 1)
 
 // reverse post using computed property
 
@@ -47,6 +31,27 @@ const reversePosts = computed(() => {
 //   console.log("just method testing");
 //   return [...posts.value].reverse();
 // }
+
+// const emits = defineEmits(["deletePost", "deleteComment"]);
+const emit = defineEmits({
+  deletePost: null,
+  commentCreate: null,
+  increaseLikeCount: null,
+  deleteComment: (index, commentIndex) => {
+    if (typeof index === "number" && typeof commentIndex === "number") {
+      return true;
+    }
+    return false;
+  },
+});
+
+function deletePost(index) {
+  emit("deletePost", index);
+}
+
+onUpdated(() => {
+  console.log("posts onUpdated");
+});
 </script>
 
 <template>
@@ -108,15 +113,20 @@ const reversePosts = computed(() => {
               <CommentSection
                 :post="post"
                 :index="reversePosts.length - (index + 1)"
-                @deleteComment="deleteComment"
-                @commentCreate="commentCreate"
+                @deleteComment="
+                  (index, commentIndex) =>
+                    emit('deleteComment', index, commentIndex)
+                "
+                @commentCreate="(index) => emit('commentCreate', index)"
+                v-model:comment="post.newComment"
               />
 
               <button
                 class="btn btn-sm btn-primary"
                 v-on:click="
                   //   increaseLikeCount(reversePosts.length - (index + 1))
-                  $emit('increaseLikeCount', reversePosts.length - (index + 1))
+                  // $emit('increaseLikeCount', reversePosts.length - (index + 1))
+                  emit('increaseLikeCount', reversePosts.length - (index + 1))
                 "
               >
                 Like

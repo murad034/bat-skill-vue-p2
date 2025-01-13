@@ -1,26 +1,47 @@
 <script setup>
-import { defineProps, ref, defineEmits, computed, watch } from "vue";
+import {
+  defineProps,
+  ref,
+  defineEmits,
+  computed,
+  watch,
+  defineModel,
+  inject,
+} from "vue";
 import moment from "moment";
 
 const props = defineProps({
-  post: {
-    type: Object,
-    required: true,
-  },
+  // post: {
+  //   type: Object,
+  //   required: true,
+  // },
   index: {
+    type: Number,
     required: true,
   },
 });
 
-const post = ref(props.post);
-const index = ref(props.index);
+// const post = ref(props.post);
+const posts = inject("posts");
 
-watch(
-  () => props.index,
-  (newValue) => {
-    index.value = newValue;
-  }
-);
+const post = ref(posts.value[props.index]);
+
+//console.log("comment post len: " + props.index);
+
+// const index = ref(props.index);
+
+// watch(
+//   () => props.index,
+//   (newValue) => {
+//     index.value = newValue;
+//   }
+// );
+
+const emits = defineEmits(["deleteComment", "commentCreate"]);
+
+const reversedComments = computed(() => {
+  return [...post.value.comments].reverse();
+});
 
 watch(
   () => post.value.comments.length,
@@ -31,22 +52,20 @@ watch(
   }
 );
 
-const emits = defineEmits(["deleteComment", "commentCreate"]);
-
-const reversedComments = computed(() => {
-  return [...post.value.comments].reverse();
-});
+// v-model property
+// two way binding between parent and child component
+const newComment = defineModel("comment");
 </script>
 
 <template>
   <div class="comments mb-3">
-    <form :key="post.id" v-on:submit.prevent="emits('commentCreate', index)">
+    <form v-on:submit.prevent="emits('commentCreate', index)">
       <div class="comments-input d-flex mb-3">
         <input
           type="text"
           class="form-control form-control-sm me-2"
           placeholder="Write Comment"
-          v-model="post.newComment"
+          v-model="newComment"
         />
         <button type="submit" class="btn btn-sm btn-success">
           <i class="bi bi-send"></i>

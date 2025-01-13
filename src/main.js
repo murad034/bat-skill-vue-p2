@@ -9,6 +9,9 @@ import router from './router'
 
 const app = createApp(App)
 
+const userName = "Md Murad Hossain";
+app.provide('userName', userName)
+
 app.use(router)
 
 app.mount('#app')
