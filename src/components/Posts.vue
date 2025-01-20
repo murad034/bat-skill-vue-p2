@@ -117,8 +117,6 @@ onUpdated(() => {
                   (index, commentIndex) =>
                     emit('deleteComment', index, commentIndex)
                 "
-                @commentCreate="(index) => emit('commentCreate', index)"
-                v-model:comment="post.newComment"
               />
 
               <button

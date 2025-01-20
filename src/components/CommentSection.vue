@@ -9,6 +9,9 @@ import {
   inject,
 } from "vue";
 import moment from "moment";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const props = defineProps({
   // post: {
@@ -55,11 +58,31 @@ watch(
 // v-model property
 // two way binding between parent and child component
 const newComment = defineModel("comment");
+
+async function commentCreate(index) {
+  const comment = {
+    id: post.value.comments.length + 1,
+    // user: store.state.userName,
+    content: newComment.value,
+    date: moment().format("YYYY-MM-DD HH:mm:ss"),
+  };
+
+  // await store.commit("addComment", {
+  await store.dispatch("posts/addComment", {
+    postId: post.value.id,
+    comment: comment,
+  });
+  newComment.value = "";
+  // post.value.commentSection = true;
+
+  //console.log(post.value.comments[post.value.comments.length - 1]);
+}
 </script>
 
 <template>
   <div class="comments mb-3">
-    <form v-on:submit.prevent="emits('commentCreate', index)">
+    <!-- <form v-on:submit.prevent="emits('commentCreate', index)"> -->
+    <form v-on:submit.prevent="commentCreate(index)">
       <div class="comments-input d-flex mb-3">
         <input
           type="text"

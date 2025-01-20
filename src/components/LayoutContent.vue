@@ -8,7 +8,7 @@ const prop = defineProps({
 
 // const userName = ref(prop.userName);
 
-const userName = inject("userName");
+// const userName = inject("userName");
 
 const currentComponent = computed(() => prop.currentComp);
 // console.log(currentComponent.value);
@@ -62,7 +62,7 @@ const currentComponent = computed(() => prop.currentComp);
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              {{ userName }}
+              {{ $store.state.userName }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="#">Profile</a></li>

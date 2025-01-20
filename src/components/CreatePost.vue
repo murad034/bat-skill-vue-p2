@@ -7,11 +7,16 @@ import {
   onBeforeMount,
   onUnmounted,
   onUpdated,
+  computed,
 } from "vue";
 import moment from "moment";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const prop = defineProps({
   postCount: Number,
+  currentComp: String,
 });
 
 const emit = defineEmits({
@@ -23,27 +28,42 @@ const formData = ref({
   content: "",
 });
 
+// const postTitle = computed(() => {
+//   store.getters["posts/getPostTitle"];
+// });
+// const postContent = computed(() => {
+//   store.getters["getPostContent"];
+// });
+
 const postCount = ref(prop.postCount);
+const currentComp = ref(prop.currentComp);
 
 function postCreate(event) {
   //event.preventDefault();
   //console.log(formData);
-  const post = {
-    id: postCount.value + 1,
+  // const post = {
+  //   id: postCount.value + 1,
+  //   title: formData.value.title,
+  //   content: formData.value.content,
+  //   likes: 0,
+  //   comments: [],
+  //   newComment: "",
+  //   commentSection: true,
+  //   //date: new Date(),
+  //   date: moment().format("YYYY-MM-DD HH:mm:ss"),
+  // };
+
+  // emit("postCreate", post);
+
+  store.commit("posts/createPost", {
     title: formData.value.title,
     content: formData.value.content,
-    likes: 0,
-    comments: [],
-    newComment: "",
-    commentSection: true,
-    //date: new Date(),
-    date: moment().format("YYYY-MM-DD HH:mm:ss"),
-  };
+  });
 
   formData.value.title = "";
   formData.value.content = "";
 
-  emit("postCreate", post);
+  currentComp.value = "posts";
 }
 
 onMounted(() => {
@@ -57,7 +77,33 @@ onUnmounted(() => {
 });
 onUpdated(() => {
   console.log("create post onUpdated");
-})
+});
+
+// function updatePostTitle(event) {
+//   store.commit("posts/updatePostTitle", event.target.value);
+// }
+
+// function updatePostContent(event) {
+//   store.commit("posts/updatePostContent", event.target.value);
+// }
+
+const postTitle = computed({
+  get() {
+    return store.getters["posts/getPostTitle"];
+  },
+  set() {
+    return store.commit("posts/updatePostTitle", event.target.value);
+  },
+});
+
+const postContent = computed({
+  get() {
+    return store.getters["posts/getPostContent"];
+  },
+  set() {
+    return store.commit("posts/updatePostContent", event.target.value);
+  },
+});
 </script>
 
 <template>
@@ -73,22 +119,40 @@ onUpdated(() => {
               </div>
               <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
+                <!-- <input
+                  type="text"
+                  class="form-control"
+                  id="title"
+                  :value="postTitle"
+                  @input="updatePostTitle"
+                  placeholder="Enter the title"
+                /> -->
                 <input
                   type="text"
                   class="form-control"
                   id="title"
-                  v-model="formData.title"
+                  v-model="postTitle"
                   placeholder="Enter the title"
+                  required
                 />
               </div>
               <div class="mb-3">
                 <label for="content" class="form-label">Content</label>
+                <!-- <textarea
+                  class="form-control"
+                  id="content"
+                  rows="3"
+                  :value="postContent"
+                  @input="updatePostContent"
+                  placeholder="Enter the content"
+                ></textarea> -->
                 <textarea
                   class="form-control"
                   id="content"
                   rows="3"
-                  v-model="formData.content"
+                  v-model="postContent"
                   placeholder="Enter the content"
+                  required
                 ></textarea>
               </div>
               <button type="submit" class="btn btn-success">Submit</button>

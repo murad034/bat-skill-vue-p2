@@ -5,48 +5,13 @@ import Posts from "./components/Posts.vue";
 import CreatePost from "./components/CreatePost.vue";
 import LayoutContent from "./components/LayoutContent.vue";
 
-const posts = ref([
-  {
-    id: 1,
-    title: "Post 1",
-    content:
-      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
-    likes: 0,
-    comments: [
-      {
-        id: 1,
-        content: "This is a comment.",
-        user: "John Doe",
-        date: "2024-05-24 11:00:00",
-      },
-    ],
-    newComment: "",
-    commentSection: true,
-    date: "2024-05-24 11:00:00",
-  },
-  {
-    id: 2,
-    title: "Post 2",
-    content:
-      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
-    likes: 0,
-    comments: [],
-    commentSection: false,
-    newComment: "",
-    date: "2023-05-24 11:00:00",
-  },
-  {
-    id: 3,
-    title: "Post 3",
-    content:
-      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
-    likes: 3,
-    comments: [],
-    commentSection: true,
-    newComment: "",
-    date: "2022-05-24 11:00:00",
-  },
-]);
+import { useStore } from "vuex";
+
+const store = useStore();
+
+// const posts = ref(store.state.posts);
+const posts = ref(store.getters["posts/getPosts"]);
+// console.log(posts);
 
 // const userName = ref("");
 const firstname = "Rafiqul Isalm";
@@ -66,26 +31,27 @@ function deletePost(index) {
   posts.value.splice(index, 1);
 }
 
-function postCreate(post) {
-  posts.value.push(post);
-  currentComp.value = "posts";
-}
+// function postCreate(post) {
+//   posts.value.push(post);
+//   currentComp.value = "posts";
+// }
 
 function deleteComment(postIndex, commentIndex) {
   // console.log(index, commentIndex);
   posts.value[postIndex].comments.splice(commentIndex, 1);
 }
 
-function commentCreate(index) {
-  posts.value[index].comments.push({
-    id: posts.value[index].comments.length + 1,
-    user: "Rafik Islam",
-    content: posts.value[index].newComment,
-    date: moment().format("YYYY-MM-DD HH:mm:ss"),
-  });
-  posts.value[index].newComment = "";
-  posts.value[index].commentSection = true;
-}
+// function commentCreate(index) {
+//   posts.value[index].comments.push({
+//     id: posts.value[index].comments.length + 1,
+//     user: "Rafik Islam",
+//     content: posts.value[index].newComment,
+//     date: moment().format("YYYY-MM-DD HH:mm:ss"),
+//   });
+
+//   posts.value[index].newComment = "";
+//   posts.value[index].commentSection = true;
+// }
 
 function toggleCommentSection(postIndex) {
   if (posts.value[postIndex].commentSection) {
@@ -132,10 +98,14 @@ const currentComp = ref("posts");
 </script>
 
 <template>
-  <LayoutContent :currentComp="currentComp" @changeComp="(comp) => (currentComp = comp)">
+  <LayoutContent
+    :currentComp="currentComp"
+    @changeComp="(comp) => (currentComp = comp)"
+  >
     <!-- design and style fall through property -->
     <CreatePost
       v-if="currentComp == 'create-post'"
+      :currentComp="currentComp"
       :postCount="posts.length"
       @postCreate="postCreate"
       class="bg-light p-4"

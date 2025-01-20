@@ -1,17 +1,22 @@
-import 'bootstrap/dist/css/bootstrap.css'
-import '@popperjs/core'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import 'bootstrap-icons/font/bootstrap-icons.css'
+import "bootstrap/dist/css/bootstrap.css";
+import "@popperjs/core";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
 
-const app = createApp(App)
+import store from "./store";
 
-const userName = "Md Murad Hossain";
-app.provide('userName', userName)
+const app = createApp(App);
+app.use(router);
 
-app.use(router)
+app.use(store);
 
-app.mount('#app')
+// used provide inject
+
+// const userName = "Md Murad Hossain";
+// app.provide("userName", userName);
+
+app.mount("#app");
